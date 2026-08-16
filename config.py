@@ -17,30 +17,57 @@ RESULTS_DIR = BASE_DIR / "results"
 
 DATASET_DIR.mkdir(exist_ok=True)
 RESULTS_DIR.mkdir(exist_ok=True)
+(BASE_DIR / "models").mkdir(exist_ok=True)
 
-# Your uploaded CSV (rename/copy it to this path, or edit this line)
-# Updated dataset: 480 rows, 6 balanced categories (incl. Hallucination and Safety),
-# Coding now 40/40 English-Bangla, plus a "difficulty" column.
+# Benchmark dataset (BNEdgeBench-400, updated: 480 rows, 6 balanced categories,
+# includes "difficulty" column)
 RAW_DATASET_PATH = DATASET_DIR / "BNEdgeBench-400_updated.csv"
-# RAW_DATASET_PATH = DATASET_DIR / "BNEdgeBench-400_mini.csv"
 CLEAN_DATASET_PATH = DATASET_DIR / "BNEdgeBench-400_clean.csv"
 
 RAW_RESULTS_PATH = RESULTS_DIR / "raw_results.csv"
 EVALUATED_RESULTS_PATH = RESULTS_DIR / "evaluated_results.csv"
+COMPARISON_RESULTS_PATH = RESULTS_DIR / "comparison_results.csv"
+TRAINING_HISTORY_PATH = RESULTS_DIR / "training_history.csv"
+FIGURES_DIR = RESULTS_DIR / "figures"
+FIGURES_DIR.mkdir(exist_ok=True)
 
 # ---------------------------------------------------------------------------
-# Models & quantization
+# Bangla instruction dataset (for LoRA fine-tuning)
 # ---------------------------------------------------------------------------
-# Maps a friendly model name -> Ollama tag for each quantization level.
-# Pull each tag once before benchmarking, e.g.:
-#   ollama pull tinyllama:1.1b-chat-v1-fp16
-#   ollama pull tinyllama:1.1b-chat-v1-q8_0
-#   ollama pull tinyllama:1.1b-chat-v1-q4_0
-#   (repeat for phi and gemma tags below)
-#
-# These tags were verified against the Ollama library (ollama.com/library).
-# Approx download sizes: TinyLlama 2.2/1.2/0.64GB, Phi-2 5.6/3.0/1.6GB,
-# Gemma 2B 4.5/2.7/~1.5GB (fp16/8bit/4bit).
+BANGLA_INSTRUCTION_RAW_PATH = DATASET_DIR / "bangla-instruction-dataset-1000.json"
+
+BANGLA_TRAIN_PATH = DATASET_DIR / "bangla_train.jsonl"
+BANGLA_VALIDATION_PATH = DATASET_DIR / "bangla_validation.jsonl"
+BANGLA_TEST_PATH = DATASET_DIR / "bangla_test.jsonl"
+
+TRAIN_RATIO = 0.8
+VALIDATION_RATIO = 0.1
+TEST_RATIO = 0.1
+SPLIT_SEED = 42
+
+# ---------------------------------------------------------------------------
+# LoRA fine-tuning settings (train_lora.py / merge_and_convert.py)
+# ---------------------------------------------------------------------------
+LORA_BASE_MODEL = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+
+LORA_ADAPTER_DIR = BASE_DIR / "models" / "tinyllama_lora_adapter"
+LORA_MERGED_MODEL_DIR = BASE_DIR / "models" / "tinyllama_lora_merged"
+
+LORA_R = 8
+LORA_ALPHA = 16
+LORA_DROPOUT = 0.05
+LEARNING_RATE = 2e-4
+EPOCHS = 3
+BATCH_SIZE = 1
+GRADIENT_ACCUMULATION_STEPS = 8
+MAX_SEQ_LENGTH = 512
+
+LORA_MODEL_NAME = "tinyllama_lora"
+LORA_OLLAMA_TAG = "tinyllama_lora:4bit"
+
+# ---------------------------------------------------------------------------
+# Models & quantization (verified real Ollama tags)
+# ---------------------------------------------------------------------------
 MODELS = {
     "tinyllama": {
         "fp16": "tinyllama:1.1b-chat-v1-fp16",
@@ -57,8 +84,14 @@ MODELS = {
         "8bit": "gemma:2b-instruct-q8_0",
         "4bit": "gemma:2b-instruct-q4_0",
     },
+    # Added after LoRA fine-tuning + merge_and_convert.py + `ollama create`.
+    # Only 4bit exists for this one -- you built a single quantized GGUF from
+    # the merged model, not separate fp16/8bit/4bit versions of it.
+    "tinyllama_lora": {
+        "4bit": "tinyllama_lora:4bit",
+    },
 }
-# If a tag isn't pulled on your machine, benchmark.py records
+# If a tag isn't pulled/created on your machine, benchmark.py records
 # status="unavailable" for that combination instead of crashing.
 
 # ---------------------------------------------------------------------------
@@ -66,11 +99,11 @@ MODELS = {
 # ---------------------------------------------------------------------------
 GENERATION_OPTIONS = {
     "temperature": 0.2,
-    "num_predict": 256,   # max new tokens per response
+    "num_predict": 256,
     "top_p": 0.9,
 }
 
-REPETITIONS = 1   # runs per prompt; raise to 3 for more stable timing averages
+REPETITIONS = 1
 
 # ---------------------------------------------------------------------------
 # Dataset schema (matches BNEdgeBench-400_updated.csv)

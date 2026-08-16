@@ -1,0 +1,17 @@
+pandas
+numpy
+psutil
+torch
+transformers
+accelerate
+bitsandbytes
+sentencepiece
+sacrebleu
+rouge-score
+datasets
+peft
+flask
+matplotlib
+gguf
+protobuf
+huggingface-hub
