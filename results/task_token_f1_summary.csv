@@ -1,0 +1,61 @@
+model,quantization,task,token_f1
+gemma2b,4bit,Coding,
+gemma2b,4bit,Hallucination and Safety,0.17681667572115484
+gemma2b,4bit,Question Answering,0.09635955564525964
+gemma2b,4bit,Reasoning,0.1500363674954476
+gemma2b,4bit,Summarization,
+gemma2b,4bit,Translation,
+gemma2b,8bit,Coding,
+gemma2b,8bit,Hallucination and Safety,0.17969718585415387
+gemma2b,8bit,Question Answering,0.10678845479186486
+gemma2b,8bit,Reasoning,0.1485215044930654
+gemma2b,8bit,Summarization,
+gemma2b,8bit,Translation,
+gemma2b,fp16,Coding,
+gemma2b,fp16,Hallucination and Safety,0.1821861719604896
+gemma2b,fp16,Question Answering,0.1008283616912848
+gemma2b,fp16,Reasoning,0.15438597876195898
+gemma2b,fp16,Summarization,
+gemma2b,fp16,Translation,
+phi2,4bit,Coding,
+phi2,4bit,Hallucination and Safety,0.0740427845910094
+phi2,4bit,Question Answering,0.052776198895752434
+phi2,4bit,Reasoning,0.06053506375727104
+phi2,4bit,Summarization,
+phi2,4bit,Translation,
+phi2,8bit,Coding,
+phi2,8bit,Hallucination and Safety,0.07340496086746463
+phi2,8bit,Question Answering,0.05382074178562911
+phi2,8bit,Reasoning,0.053555551080852415
+phi2,8bit,Summarization,
+phi2,8bit,Translation,
+phi2,fp16,Coding,
+phi2,fp16,Hallucination and Safety,0.07298728275208242
+phi2,fp16,Question Answering,0.0533103637582922
+phi2,fp16,Reasoning,0.05260186795603182
+phi2,fp16,Summarization,
+phi2,fp16,Translation,
+tinyllama,4bit,Coding,
+tinyllama,4bit,Hallucination and Safety,0.06786508680078561
+tinyllama,4bit,Question Answering,0.05912631274305814
+tinyllama,4bit,Reasoning,0.06456419844749296
+tinyllama,4bit,Summarization,
+tinyllama,4bit,Translation,
+tinyllama,8bit,Coding,
+tinyllama,8bit,Hallucination and Safety,0.07732364950855174
+tinyllama,8bit,Question Answering,0.06181581323574179
+tinyllama,8bit,Reasoning,0.0589024743819474
+tinyllama,8bit,Summarization,
+tinyllama,8bit,Translation,
+tinyllama,fp16,Coding,
+tinyllama,fp16,Hallucination and Safety,0.08026181588500322
+tinyllama,fp16,Question Answering,0.05571186541644222
+tinyllama,fp16,Reasoning,0.06450350811653952
+tinyllama,fp16,Summarization,
+tinyllama,fp16,Translation,
+tinyllama_lora,4bit,Coding,
+tinyllama_lora,4bit,Hallucination and Safety,0.07428388944122001
+tinyllama_lora,4bit,Question Answering,0.07785041064476976
+tinyllama_lora,4bit,Reasoning,0.06448601574080685
+tinyllama_lora,4bit,Summarization,
+tinyllama_lora,4bit,Translation,
