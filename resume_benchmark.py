@@ -19,7 +19,6 @@ def main():
     raw_df = pd.read_csv(RAW_RESULTS_PATH)
     clean_df = pd.read_csv(CLEAN_DATASET_PATH)
 
-    # Map prompt_id -> actual prompt text
     prompt_map = dict(zip(clean_df['id'], clean_df['prompt']))
 
     failed_mask = raw_df['status'] != 'ok'
@@ -33,7 +32,6 @@ def main():
         print("All 4,320 rows are already status='ok'! Nothing to do.")
         return
 
-    # Create model x quant -> tag mapping
     tag_map = {}
     for m_name, quants in MODELS.items():
         for q_name, tag in quants.items():
@@ -68,7 +66,6 @@ def main():
 
         processed += 1
 
-        # Save progress every 10 rows so you never lose work if interrupted
         if processed % 10 == 0 or processed == failed_count:
             raw_df.to_csv(RAW_RESULTS_PATH, index=False)
 

@@ -23,7 +23,6 @@ print(df.groupby(["model", "quantization"]).size())
 print("\nStatus breakdown:")
 print(df["status"].value_counts())
 
-# How much is left to do, per the current config.py
 total_prompts = None
 try:
     from config import CLEAN_DATASET_PATH

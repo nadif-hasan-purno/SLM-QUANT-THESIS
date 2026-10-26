@@ -44,10 +44,6 @@ from config import (
     GRADIENT_ACCUMULATION_STEPS, MAX_SEQ_LENGTH, TRAINING_HISTORY_PATH,
 )
 
-# NOTE: this must exactly match the TEMPLATE in your Ollama Modelfile
-# (Modelfile.tinyllama_lora) and merge_and_convert.py's MODELFILE_CONTENT,
-# or the adapted model will be prompted differently at inference time than
-# it was trained on. This is TinyLlama-Chat's own official template.
 SYSTEM_MESSAGE = "You are a helpful assistant that answers clearly in the language of the question."
 PROMPT_TEMPLATE = (
     "<|system|>\n" + SYSTEM_MESSAGE + "</s>\n"
@@ -58,7 +54,7 @@ PROMPT_TEMPLATE = (
 
 def get_device():
     if torch.backends.mps.is_available():
-        return "mps"   # Apple Silicon GPU
+        return "mps"
     if torch.cuda.is_available():
         return "cuda"
     return "cpu"
@@ -89,18 +85,15 @@ def build_and_tokenize(tokenizer):
         )
         prompt_ids = tokenizer(prompt_part, add_special_tokens=False)["input_ids"]
         if len(prompt_ids) > max_prompt_tokens:
-            # Keep the END of the prompt (preserves "<|assistant|>\n" right
-            # before generation) rather than the default right-truncation,
-            # which would drop the crucial suffix instead.
             prompt_ids = prompt_ids[-max_prompt_tokens:]
 
         remaining_budget = MAX_SEQ_LENGTH - len(prompt_ids)
         response_text = example["output"] + tokenizer.eos_token
         response_ids = tokenizer(response_text, add_special_tokens=False)["input_ids"]
-        response_ids = response_ids[:remaining_budget]  # only bites for unusually long responses
+        response_ids = response_ids[:remaining_budget]
 
         input_ids = prompt_ids + response_ids
-        labels = [-100] * len(prompt_ids) + response_ids  # -100 = ignored by cross-entropy loss
+        labels = [-100] * len(prompt_ids) + response_ids
 
         return {"input_ids": input_ids, "labels": labels}
 
@@ -125,7 +118,7 @@ def make_collate_fn(tokenizer):
 
             input_ids.append(ids + [pad_id] * pad_len)
             attention_mask.append([1] * len(ids) + [0] * pad_len)
-            labels.append(lbl + [-100] * pad_len)  # padding excluded from loss
+            labels.append(lbl + [-100] * pad_len)
 
         return {
             "input_ids": torch.tensor(input_ids, dtype=torch.long),
@@ -144,8 +137,6 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(LORA_BASE_MODEL)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-    # Safe even though pad_token == eos_token, because the collator above
-    # explicitly masks every padded position out of the loss.
 
     model = AutoModelForCausalLM.from_pretrained(
         LORA_BASE_MODEL,
@@ -156,11 +147,6 @@ def main():
 
     print("\nApplying LoRA config:")
     print(f"  r={LORA_R}, alpha={LORA_ALPHA}, dropout={LORA_DROPOUT}")
-    # Widened from just q_proj/v_proj to all attention + MLP linear layers.
-    # q_proj/v_proj alone gave only 0.1% trainable params -- likely too
-    # little capacity for a 1.1B model to reliably learn 16 diverse
-    # instruction categories from 731 examples. This covers all 7 linear
-    # layers per transformer block instead of 2, for ~5.6x more capacity.
     lora_config = LoraConfig(
         r=LORA_R,
         lora_alpha=LORA_ALPHA,
@@ -182,9 +168,6 @@ def main():
     process_fn = build_and_tokenize(tokenizer)
     dataset = dataset.map(process_fn, remove_columns=dataset["train"].column_names)
 
-    # Safety net: drop any example where every label is still -100 (should
-    # be effectively impossible after the fix above, but this guarantees
-    # the nan eval_loss bug can never silently come back).
     def has_valid_target(example):
         return any(l != -100 for l in example["labels"])
     before_train, before_val = len(dataset["train"]), len(dataset["validation"])

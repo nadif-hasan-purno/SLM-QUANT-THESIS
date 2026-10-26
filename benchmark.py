@@ -77,7 +77,7 @@ def run_single_prompt(tag, prompt):
     """Send one prompt to Ollama and measure latency/memory/CPU/tokens."""
     process = psutil.Process()
     cpu_before = psutil.cpu_percent(interval=None)
-    mem_before = process.memory_info().rss / (1024 ** 3)  # GB
+    mem_before = process.memory_info().rss / (1024 ** 3)
 
     start = time.time()
     response = ollama.generate(model=tag, prompt=prompt, options=GENERATION_OPTIONS)

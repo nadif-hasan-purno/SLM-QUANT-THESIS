@@ -8,9 +8,6 @@ from config import (
     FIGURES_DIR,
 )
 
-# ============================================================
-# LOAD DATA
-# ============================================================
 
 print("=" * 60)
 print("LOADING EVALUATED RESULTS")
@@ -22,7 +19,6 @@ print(f"Total rows: {len(df)}")
 print(f"Models: {df['model'].unique().tolist()}")
 print(f"Quantizations: {df['quantization'].unique().tolist()}")
 
-# Convert important columns to numeric
 numeric_columns = [
     "latency_seconds",
     "memory_gb",
@@ -46,9 +42,6 @@ for col in numeric_columns:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
 
-# ============================================================
-# BASIC DATA CHECK
-# ============================================================
 
 print("\n" + "=" * 60)
 print("ROWS BY MODEL AND QUANTIZATION")
@@ -63,9 +56,6 @@ counts = (
 print(counts.to_string(index=False))
 
 
-# ============================================================
-# FIGURE 1 — AVERAGE LATENCY
-# ============================================================
 
 print("\nCreating Figure 1...")
 
@@ -96,9 +86,6 @@ plt.close()
 print("Saved: 1_average_latency.png")
 
 
-# ============================================================
-# FIGURE 2 — MEMORY USAGE
-# ============================================================
 
 print("Creating Figure 2...")
 
@@ -129,9 +116,6 @@ plt.close()
 print("Saved: 2_average_memory.png")
 
 
-# ============================================================
-# FIGURE 3 — TOKENS PER SECOND
-# ============================================================
 
 print("Creating Figure 3...")
 
@@ -162,9 +146,6 @@ plt.close()
 print("Saved: 3_tokens_per_second.png")
 
 
-# ============================================================
-# FIGURE 4 — TOKEN F1
-# ============================================================
 
 print("Creating Figure 4...")
 
@@ -195,9 +176,6 @@ plt.close()
 print("Saved: 4_token_f1.png")
 
 
-# ============================================================
-# TASK-LEVEL TOKEN F1
-# ============================================================
 
 print("\nCreating task-level summary...")
 
@@ -215,9 +193,6 @@ task_f1.to_csv(
 print("Saved: task_token_f1_summary.csv")
 
 
-# ============================================================
-# LANGUAGE-LEVEL TOKEN F1
-# ============================================================
 
 language_f1 = (
     df.groupby(["model", "quantization", "language"])["token_f1"]
@@ -233,18 +208,11 @@ language_f1.to_csv(
 print("Saved: language_token_f1_summary.csv")
 
 
-# ============================================================
-# TINYLLAMA BASE 4-BIT VS LORA 4-BIT
-# ============================================================
 
 print("\n" + "=" * 60)
 print("TINYLLAMA BASE 4-BIT VS LORA 4-BIT")
 print("=" * 60)
 
-# IMPORTANT:
-# Only compare TinyLlama 4-bit with LoRA 4-bit.
-# This prevents fp16 and 8-bit rows from being mixed into
-# the comparison.
 
 base = df[
     (df["model"] == "tinyllama") &
@@ -260,9 +228,6 @@ print(f"TinyLlama 4-bit rows: {len(base)}")
 print(f"LoRA 4-bit rows: {len(lora)}")
 
 
-# ------------------------------------------------------------
-# Overall comparison
-# ------------------------------------------------------------
 
 base_latency = base["latency_seconds"].mean()
 lora_latency = lora["latency_seconds"].mean()
@@ -306,9 +271,6 @@ print("\nOverall comparison:")
 print(comparison.to_string(index=False))
 
 
-# ============================================================
-# FIGURE 5 — BASE VS LORA
-# ============================================================
 
 print("\nCreating Base vs LoRA figure...")
 
@@ -333,8 +295,6 @@ lora_values = [
     lora_f1
 ]
 
-# Normalize each metric for visual comparison.
-# This avoids latency/memory dominating the graph.
 
 import numpy as np
 
@@ -382,9 +342,6 @@ plt.close()
 print("Saved: 5_tinyllama_before_after_lora.png")
 
 
-# ============================================================
-# OVERALL SUMMARY
-# ============================================================
 
 overall_summary = (
     df.groupby(["model", "quantization"])
@@ -420,9 +377,6 @@ overall_summary.to_csv(
 print("\nSaved: overall_summary.csv")
 
 
-# ============================================================
-# FINAL OUTPUT
-# ============================================================
 
 print("\n" + "=" * 60)
 print("ANALYSIS COMPLETE")

@@ -7,7 +7,6 @@ model_path = "models/tinyllama_lora_merged"
 print("Loading tokenizer...", flush=True)
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
 
-# Loading natively as FP16 (no dtype forcing)
 print("Loading model on CPU...", flush=True)
 model = AutoModelForCausalLM.from_pretrained(
     model_path, 

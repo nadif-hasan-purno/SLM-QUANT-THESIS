@@ -31,9 +31,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from config import LORA_BASE_MODEL, LORA_ADAPTER_DIR, LORA_MERGED_MODEL_DIR, LORA_MODEL_NAME
 
-# Must exactly match SYSTEM_MESSAGE / PROMPT_TEMPLATE in train_lora.py --
-# if these drift apart, the model will be prompted differently at inference
-# time than it was trained on.
 SYSTEM_MESSAGE = "You are a helpful assistant that answers clearly in the language of the question."
 
 MODELFILE_CONTENT = f'''FROM ./{LORA_MODEL_NAME}.gguf
